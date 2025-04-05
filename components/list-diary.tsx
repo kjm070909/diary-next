@@ -13,9 +13,10 @@ interface ListDiaryProps{
 
 export default function ListDiaru({title,create_at,photo,id}:ListDiaryProps) {
     return(
-        <Link href={`/diary/${id}`}>
+        <Link href={`/diary/${id}`} className="bg-black">
+            <div className="bg-black">
             <div>
-                <Image src={photo} alt={title} width={20} height={20} />
+                <Image src={photo} alt={title} width={300} height={200} />
             </div>
             <div className="flex flex-col gap-1 *:text-white">
         <span className="text-lg">{title}</span>
@@ -24,6 +25,8 @@ export default function ListDiaru({title,create_at,photo,id}:ListDiaryProps) {
         </span>
         <span className="text-lg font-semibold">{}</span>
       </div>
+            </div>
+
         </Link>
     )
 }
