@@ -14,7 +14,7 @@ export default function Inputs({
         <div>
             <input 
             name={name}
-            className=""
+            className="text-black"
             {...rest}
             />
             {errors.map((error,index)=>(

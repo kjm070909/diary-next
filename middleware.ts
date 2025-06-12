@@ -13,20 +13,20 @@ const publiconlyUrls:Routes = {
 }
 
 export async function middleware(request:NextRequest) {
-    const session = await getSession()
-    const exissts = publiconlyUrls[request.nextUrl.pathname]
-    // if (request.nextUrl.pathname === "/"){
-    //     return NextResponse.redirect(new URL("/login",request.url))
-    // }
-    if(!session.id) {
-        if(!exissts){
-            return NextResponse.redirect(new URL("/login",request.url))
-        }
+    // const session = await getSession()
+    // const exissts = publiconlyUrls[request.nextUrl.pathname]
+    // // if (request.nextUrl.pathname === "/"){
+    // //     return NextResponse.redirect(new URL("/login",request.url))
+    // // }
+    // if(!session.id) {
+    //     if(!exissts){
+    //         return NextResponse.redirect(new URL("/login",request.url))
+    //     }
     
-    }else{
-        if(exissts){
-            return NextResponse.redirect(new URL("/diary",request.url))
-        }
-    }
+    // }else{
+    //     if(exissts){
+    //         return NextResponse.redirect(new URL("/diary",request.url))
+    //     }
+    // }
     
 }

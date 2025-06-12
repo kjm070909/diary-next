@@ -35,16 +35,16 @@ export default async function Home() {
   }
   return (
     
-    <div className=" flex flex-col items-center font-serif m-auto ">
+    <div className=" h-screen flex flex-col  items-center justify-center font-serif ">
       <Image src={see} className={classes.img}  fill alt="backgrou'ng"></Image>
       <div>
         <div className="text-[20px]  items-center m-auto flex justify-center">WELCOME TO</div>
-        <h1 className="text-[100px] ">{user.username}Our Diary</h1>
-        <Link href="/create-account"><div className="justify-center flex bg-white text-black ">Lets Write</div></Link>
+        <h1 className="text-[100px] mb-6 ">{user.username} Our Diary</h1>
+        <Link href="/diary "><div className="justify-center flex bg-white text-black mt-9 ">Lets Write</div></Link>
         
       </div>
       <form action={logout}>
-        <button>LOG OUT</button>
+        <button className="mt-5">LOG OUT</button>
       </form>
       </div>
   );
