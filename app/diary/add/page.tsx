@@ -86,7 +86,7 @@ export default function AddDiary() {
           </div>
 
           <div className="text-center">
-            <Button className="bg-rose-500 hover:bg-rose-600 text-white py-2 px-6 rounded-xl text-lg shadow-lg transition duration-300" text="작성 완료" />
+            <Button  className="bg-rose-500 hover:bg-rose-600 text-white py-2 px-6 rounded-xl text-lg shadow-lg transition duration-300" text="작성 완료" />
           </div>
         </form>
       </div>

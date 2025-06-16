@@ -1,10 +1,12 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session";
-import { unstable_cache as nextCache ,revalidatePath  } from "next/cache";
+import { unstable_cache as nextCache , revalidateTag  } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { useState } from "react";
 
+import { onDeletediary } from "./actions";
 async function getDiary(id: number) {
   try {
     const diary = await db.diary.update({
@@ -40,13 +42,13 @@ const cachedDiary = nextCache(getDiary,
   ["diary-detail"],
   {tags:["diary-detail"],revalidate:60})
 
-async function getLikestatus(diaryId: number) {
-  const session = await getSession();
+async function getLikestatus(diaryId: number,userId:number) {
+  
   const isliked = await db.likes.findUnique({
     where: {
       id: {
         diaryId,
-        userId: session.id!,
+        userId
         
       },
     },
@@ -56,19 +58,22 @@ async function getLikestatus(diaryId: number) {
       diaryId
     }
   })
-  return (likeCount,Boolean(isliked))
+ 
+ return{ likeCount, isliked: Boolean(isliked) }
 }
 
-function getCachedLikeStatus(postId:number){
+function getCachedLikeStatus(postId:number,userId: number){
   const getresultlike = nextCache(getLikestatus,["diary-like-status"],{tags:[`like-status-${postId}`]})
-  return getresultlike(postId)
+  return getresultlike(postId,userId)
 }
+
+
 
 
 
 export default async function DiaryDetail({ params }: { params: {id:number} }) {
   const id = Number(params.id)
-
+  
   if (isNaN(id)) return notFound();
 
   const diary = await cachedDiary(id);
@@ -78,6 +83,7 @@ export default async function DiaryDetail({ params }: { params: {id:number} }) {
 
   );
 
+  
   const liked = async () => {
     "use server";
     const session = await getSession();
@@ -88,9 +94,22 @@ export default async function DiaryDetail({ params }: { params: {id:number} }) {
           userId: session.id!,
         },
       });
-      revalidatePath(`like-status-${id}`)
+      revalidateTag(`like-status-${id}`)
     } catch (e) {}
   };
+
+  const onDeletediary = async () =>{
+    "use server";
+    // const session = await getSession()
+    try{
+      await db.diary.delete({
+        where:{
+          id
+        }
+      })
+      redirect("/")
+    } catch(e){}
+  }
 
   const noliked = async () => {
     "use server";
@@ -104,15 +123,18 @@ export default async function DiaryDetail({ params }: { params: {id:number} }) {
           },
         },
       });
-    revalidatePath(`like-status-${id}`)
+    
+      
+    revalidateTag(`like-status-${id}`)
+   
     } catch (e) {}
   };
 
   const session = await getSession();
   const userid = session.id!;
-  const {likeCount,isliked} = await getCachedLikeStatus(id);
+  const {likeCount,isliked} = await getCachedLikeStatus(id,userid);
 // console.log(diary.user.Product)
-console.log(likeCount,isliked)
+
   return (
     <div className="h-screen overflow-y-auto bg-gradient-to-b from-purple-900 via-pink-700 to-orange-500 text-white">
       <div className="relative w-full h-[400px]">
@@ -140,39 +162,41 @@ console.log(likeCount,isliked)
     >
       <path d="M10 2a5 5 0 00-3.535 8.535A7.002 7.002 0 003 17h2a5 5 0 0110 0h2a7.002 7.002 0 00-3.465-6.465A5 5 0 0010 2z" />
     </svg>
-    <span className="font-semibold">{diary.user.username}</span>
+
+    <span className="font-semibold"   >{diary.user.username}</span>
+
   </div>
   </Link>
-
+        <div>
+      {userid === diary.user.id ? (<form action={onDeletediary} >
+        <button type="submit">Delete</button>
+      </form>):(<p></p>)}
+    </div>
 
   {/* 좋아요와 조회수 */}
   <div className="flex items-center gap-6">
-    <div className="flex gap-2 items-center">
-      {isliked ? (
-        <button
-          onClick={noliked}
-          className="text-red-400 hover:text-red-600 text-2xl transition"
-        >
-          ❤️
-        </button>
-      ) : (
-        <button
-          onClick={liked}
-          className="text-gray-300 hover:text-white text-2xl transition"
-        >
-          🤍
-        </button>
-      )}
-      {isliked ? (<span>{likeCount}</span>) : (<span>{likeCount} Likes</span>)}
-      
-    </div>
+<div className="flex gap-2 items-center">
+  <form action={isliked ? noliked : liked}>
+    <button
+      type="submit"
+      className={`text-2xl transition ${
+        isliked ? "text-red-400 hover:text-red-600" : "text-gray-300 hover:text-white"
+      }`}
+    >
+      {isliked ? "❤️" : "🤍"}
+    </button>
+  </form>
+  <span>{likeCount} Likes</span>
+</div>
     <span className="text-sm text-gray-300">{diary.views} views</span>
   </div>
 </div>
 
 
         <div className="bg-white/10 p-6 rounded-xl shadow-lg backdrop-blur-md">
-          <p className="whitespace-pre-line text-lg leading-relaxed">{diary.description}</p>
+          <pre className="whitespace-pre-line font-sans text-lg leading-relaxed">
+  {diary.description}
+</pre>
         </div>
       </div>
     </div>
