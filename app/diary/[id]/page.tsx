@@ -6,7 +6,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { useState } from "react";
 
-import { onDeletediary } from "./actions";
+// import { onDeletediary } from "./actions";
 async function getDiary(id: number) {
   try {
     const diary = await db.diary.update({

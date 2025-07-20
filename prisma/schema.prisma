@@ -21,12 +21,12 @@ model User {
   phone String? @unique
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
   token SMSToken[]
-
   Product Diary[]
-
   Likes Likes[]
+  chatroom chatroom[]
+
+  Message Message[]
 }
 
 model SMSToken {
@@ -68,4 +68,27 @@ model Likes {
   diaryId Int
   @@id(name:"id",[userId,diaryId])
   
+}
+
+
+model chatroom{
+  id String @id @default(cuid())
+  users User[]
+
+  created_at  DateTime @default(now())
+  updated_at DateTime @updatedAt
+  messages Message[]
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  payload String
+
+  created_at  DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  room chatroom @relation(fields: [chatRoomId], references: [id])
+  chatRoomId String
+  user User @relation(fields: [userId],references: [id])
+  userId Int
 }

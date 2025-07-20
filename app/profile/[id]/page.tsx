@@ -1,8 +1,10 @@
 import ListDiaru from "@/components/list-diary";
 import db from "@/lib/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import sun from "@/public/dadaepo-beach-2826171_1920.jpg";
 import Image from "next/image";
+import Link from "next/link";
+import getSession from "@/lib/session";
 
 async function getUser(id: number) {
   try {
@@ -52,6 +54,25 @@ export default async function UsersProfile({ params }: { params: { id: string } 
 
   const userDiary = await getUserDiary(user.id); // ✅ 이 시점에 user는 안전하게 사용 가능
 
+  const createChatRoom = async() => {
+    "use server"
+    const session = await getSession()
+    const room = await db.chatroom.create({
+      data:{
+        users: {
+          connect: [
+            {
+              id:user.id
+            },{
+              id:session.id
+            }
+          ]
+        }
+      }
+    })
+    redirect(`/chats/${room.id}`)
+  }
+
   return (
     <div className="relative h-screen text-white overflow-y-auto">
       {/* 배경 이미지 */}
@@ -66,6 +87,10 @@ export default async function UsersProfile({ params }: { params: { id: string } 
           {user.username?.charAt(0).toUpperCase()}
         </div>
         <h1 className="text-5xl ml-6 font-extrabold drop-shadow-lg">{user.username}</h1>
+        <form action={createChatRoom}>
+          <button  className="font-semibold text-xl ml-6 p-2 rounded-xl bg-orange-600" >채팅하기</button>
+        </form>
+        
       </div>
 
       {/* 일기 제목 */}
